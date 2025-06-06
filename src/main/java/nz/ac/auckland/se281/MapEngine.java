@@ -11,6 +11,9 @@ import java.util.Set;
 
 /** This class is the main entry point. */
 public class MapEngine {
+  // This class is responsible for managing the map of countries and their adjacencies.
+  // It provides methods to load the map, check country information, and find routes between
+  // countries.
   private List<String> countries;
   private List<String> adjacencies;
   private String country;
@@ -32,6 +35,8 @@ public class MapEngine {
     this.countries = Utils.readCountries();
     this.adjacencies = Utils.readAdjacencies();
 
+    // Build the graph from the countries and adjacencies
+
     for (String line : countries) {
       String[] parts = line.split(",");
       String name = parts[0].trim();
@@ -42,6 +47,9 @@ public class MapEngine {
       graph.put(name, node);
     }
 
+    // Add neighbours to each country node based on adjacencies
+    // Each line in adjacencies is of the form: "Country, Neighbour1, Neighbour2, ..."
+
     for (String line : adjacencies) {
       String[] parts = line.split(",");
       String country = parts[0].trim();
@@ -49,12 +57,13 @@ public class MapEngine {
       CountryNode node = graph.get(country);
       for (int i = 1; i < parts.length; i++) {
         String neighbour = parts[i].trim();
-        node.neighbours.add(neighbour);
+        node.getNeighbours().add(neighbour);
       }
     }
   }
 
   private void checkCountryInfo(String input) throws InvalidCountryException {
+
     input =
         Utils.capitalizeFirstLetterOfEachWord(input); // Capitalize the first letter of each word
     String country = null;
@@ -130,6 +139,8 @@ public class MapEngine {
     queue.add(initialPath);
     visited.add(start);
 
+    // Perform BFS to find the shortest path
+
     while (!queue.isEmpty()) {
       List<String> path = queue.poll();
       String current = path.get(path.size() - 1);
@@ -138,7 +149,8 @@ public class MapEngine {
         return path;
       }
 
-      for (String neighbor : graph.get(current).neighbours) {
+      // Explore neighbours
+      for (String neighbor : graph.get(current).getNeighbours()) {
         if (!visited.contains(neighbor)) {
           visited.add(neighbor);
           List<String> newPath = new ArrayList<>(path);
@@ -161,6 +173,8 @@ public class MapEngine {
         MessageCli.INVALID_COUNTRY.printMessage(source);
         continue;
       }
+      // Check if the source country is valid
+      // If the source is not valid, prompt the user to enter it again
 
       try {
         checkCountryInfo(source);
@@ -179,6 +193,8 @@ public class MapEngine {
         continue;
       }
 
+      // Check if the destination country is valid
+      // If the destination is not valid, prompt the user to enter it again
       try {
         checkCountryInfo(destination);
         this.destination = destination;
@@ -199,30 +215,34 @@ public class MapEngine {
     }
     MessageCli.ROUTE_INFO.printMessage(route.toString());
 
+    // Calculate total fuel cost for the route
     int totalFuel = 0;
     for (int i = 1; i < route.size() - 1; i++) {
       String currentCountry = route.get(i);
-      totalFuel += graph.get(currentCountry).fuelCost;
+      totalFuel += graph.get(currentCountry).getFuelCost();
     }
     MessageCli.FUEL_INFO.printMessage(String.valueOf(totalFuel));
 
     Map<String, Integer> continentFuelMap = new LinkedHashMap<>();
     Set<String> visitedContinents = new HashSet<>();
 
+    // Calculate fuel cost per continent
     for (int i = 0; i < route.size(); i++) {
       String country = route.get(i);
       CountryNode node = graph.get(country);
-      String continent = node.continent;
+      String continent = node.getContinent();
 
       if (!visitedContinents.contains(continent)) {
         visitedContinents.add(continent);
         continentFuelMap.put(continent, 0);
       }
       if (i > 0 && i < route.size() - 1) {
-        continentFuelMap.put(continent, continentFuelMap.get(continent) + node.fuelCost);
+        continentFuelMap.put(continent, continentFuelMap.get(continent) + node.getFuelCost());
       }
     }
 
+    // Prepare the output for continents and the continent with maximum fuel cost
+    // Create a list to store continent information
     List<String> continents = new ArrayList<>();
     String maxContinent = null;
     int maxFuel = 0;
@@ -236,6 +256,7 @@ public class MapEngine {
         maxContinent = continent;
       }
     }
+    // Print the continents and the continent with maximum fuel cost
     MessageCli.CONTINENT_INFO.printMessage(continents.toString());
     MessageCli.FUEL_CONTINENT_INFO.printMessage(maxContinent + " (" + maxFuel + ")");
   }
