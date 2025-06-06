@@ -237,6 +237,6 @@ public class MapEngine {
       }
     }
     MessageCli.CONTINENT_INFO.printMessage(continents.toString());
-    MessageCli.FUEL_CONTINENT_INFO.printMessage(maxContinent);
+    MessageCli.FUEL_CONTINENT_INFO.printMessage(maxContinent + " (" + maxFuel + ")");
   }
 }
