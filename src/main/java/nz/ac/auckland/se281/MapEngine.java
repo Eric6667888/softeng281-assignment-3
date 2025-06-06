@@ -31,9 +31,8 @@ public class MapEngine {
 
     this.countries = Utils.readCountries();
     this.adjacencies = Utils.readAdjacencies();
-    List<String> countryLines = Utils.readCountries();
-    List<String> adjacencyLines = Utils.readAdjacencies();
-    for (String line : countryLines) {
+
+    for (String line : countries) {
       String[] parts = line.split(",");
       String name = parts[0].trim();
       String continent = parts[1].trim();
@@ -43,7 +42,7 @@ public class MapEngine {
       graph.put(name, node);
     }
 
-    for (String line : adjacencyLines) {
+    for (String line : adjacencies) {
       String[] parts = line.split(",");
       String country = parts[0].trim();
 
