@@ -191,7 +191,12 @@ public class MapEngine {
       MessageCli.NO_CROSSBORDER_TRAVEL.printMessage();
       return; // No cross-border travel is required
     }
+    this.source = Utils.capitalizeFirstLetterOfEachWord(source);
+    this.destination = Utils.capitalizeFirstLetterOfEachWord(destination);
     List<String> route = findShortestRoute(source, destination);
+    if (route == null) {
+      return; // No route found
+    }
     MessageCli.ROUTE_INFO.printMessage(route.toString());
 
     int totalFuel = 0;
@@ -200,5 +205,38 @@ public class MapEngine {
       totalFuel += graph.get(currentCountry).fuelCost;
     }
     MessageCli.FUEL_INFO.printMessage(String.valueOf(totalFuel));
+
+    Map<String, Integer> continentFuelMap = new LinkedHashMap<>();
+    Set<String> visitedContinents = new HashSet<>();
+
+    for (int i = 0; i < route.size(); i++) {
+      String country = route.get(i);
+      CountryNode node = graph.get(country);
+      String continent = node.continent;
+
+      if (!visitedContinents.contains(continent)) {
+        visitedContinents.add(continent);
+        continentFuelMap.put(continent, 0);
+      }
+      if (i > 0 && i < route.size() - 1) {
+        continentFuelMap.put(continent, continentFuelMap.get(continent) + node.fuelCost);
+      }
+    }
+
+    List<String> continents = new ArrayList<>();
+    String maxContinent = null;
+    int maxFuel = 0;
+
+    for (Map.Entry<String, Integer> entry : continentFuelMap.entrySet()) {
+      String continent = entry.getKey();
+      int fuel = entry.getValue();
+      continents.add(continent + " (" + fuel + ")");
+      if (fuel > maxFuel) {
+        maxFuel = fuel;
+        maxContinent = continent;
+      }
+    }
+    MessageCli.CONTINENT_INFO.printMessage(continents.toString());
+    MessageCli.FUEL_CONTINENT_INFO.printMessage(maxContinent);
   }
 }
