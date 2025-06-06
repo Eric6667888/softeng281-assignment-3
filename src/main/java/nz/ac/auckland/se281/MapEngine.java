@@ -60,11 +60,11 @@ public class MapEngine {
   /** this method is invoked when the user run the command info-country. */
   public void showInfoCountry() {
     while (true) {
-      System.out.print(MessageCli.INSERT_COUNTRY.getMessage());
+      MessageCli.INSERT_COUNTRY.printMessage();
       String input = Utils.scanner.nextLine().trim();
 
       if (input.isEmpty()) {
-        System.out.println(MessageCli.NO_COMMAND);
+        MessageCli.INVALID_COUNTRY.printMessage(input);
         continue; // Continue if no input is provided
       }
 
