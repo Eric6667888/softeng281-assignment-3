@@ -121,6 +121,8 @@ public class MapEngine {
   }
 
   private List<String> findShortestRoute(String start, String goal) {
+    start = Utils.capitalizeFirstLetterOfEachWord(start);
+    goal = Utils.capitalizeFirstLetterOfEachWord(goal);
     Queue<List<String>> queue = new LinkedList<>();
     Set<String> visited = new HashSet<>();
 
