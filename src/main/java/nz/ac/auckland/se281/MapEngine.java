@@ -6,6 +6,12 @@ import java.util.List;
 public class MapEngine {
   private List<String> countries;
   private List<String> adjacencies;
+  private String country;
+  private String continent;
+  private String value;
+  private String[] neighbours;
+  private String source;
+  private String destination;
 
   public MapEngine() {
     // add other code here if you wan
@@ -53,8 +59,10 @@ public class MapEngine {
         break; // Exit the loop once we find the country
       }
     }
-    MessageCli.COUNTRY_INFO.printMessage(
-        country, continent, value, "[" + String.join(", ", neighbours) + "]");
+    this.country = country;
+    this.continent = continent;
+    this.value = value;
+    this.neighbours = neighbours;
   }
 
   /** this method is invoked when the user run the command info-country. */
@@ -70,6 +78,8 @@ public class MapEngine {
 
       try {
         checkCountryInfo(input);
+        MessageCli.COUNTRY_INFO.printMessage(
+            country, continent, value, "[" + String.join(", ", neighbours) + "]");
         break; // Exit the loop if the country information is successfully displayed
       } catch (InvalidCountryException e) {
         MessageCli.INVALID_COUNTRY.printMessage(e.getMessage());
@@ -81,5 +91,40 @@ public class MapEngine {
   }
 
   /** this method is invoked when the user run the command route. */
-  public void showRoute() {}
+  public void showRoute() {
+    while (true) {
+      MessageCli.INSERT_SOURCE.printMessage();
+      String source = Utils.scanner.nextLine().trim();
+
+      if (source.isEmpty()) {
+        MessageCli.INVALID_COUNTRY.printMessage(source);
+        continue;
+      }
+
+      try {
+        checkCountryInfo(source);
+        this.source = source;
+        break;
+      } catch (InvalidCountryException e) {
+        MessageCli.INVALID_COUNTRY.printMessage(e.getMessage());
+      }
+    }
+    while (true) {
+      MessageCli.INSERT_DESTINATION.printMessage();
+      String destination = Utils.scanner.nextLine().trim();
+
+      if (destination.isEmpty()) {
+        MessageCli.INVALID_COUNTRY.printMessage(destination);
+        continue;
+      }
+
+      try {
+        checkCountryInfo(destination);
+        this.destination = destination;
+        break;
+      } catch (InvalidCountryException e) {
+        MessageCli.INVALID_COUNTRY.printMessage(e.getMessage());
+      }
+    }
+  }
 }
