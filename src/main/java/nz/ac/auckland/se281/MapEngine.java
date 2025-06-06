@@ -1,6 +1,13 @@
 package nz.ac.auckland.se281;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 /** This class is the main entry point. */
 public class MapEngine {
@@ -12,6 +19,7 @@ public class MapEngine {
   private String[] neighbours;
   private String source;
   private String destination;
+  private Map<String, CountryNode> graph = new LinkedHashMap<>();
 
   public MapEngine() {
     // add other code here if you wan
@@ -23,6 +31,28 @@ public class MapEngine {
 
     this.countries = Utils.readCountries();
     this.adjacencies = Utils.readAdjacencies();
+    List<String> countryLines = Utils.readCountries();
+    List<String> adjacencyLines = Utils.readAdjacencies();
+    for (String line : countryLines) {
+      String[] parts = line.split(",");
+      String name = parts[0].trim();
+      String continent = parts[1].trim();
+      int fuel = Integer.parseInt(parts[2].trim());
+
+      CountryNode node = new CountryNode(name, continent, fuel);
+      graph.put(name, node);
+    }
+
+    for (String line : adjacencyLines) {
+      String[] parts = line.split(",");
+      String country = parts[0].trim();
+
+      CountryNode node = graph.get(country);
+      for (int i = 1; i < parts.length; i++) {
+        String neighbour = parts[i].trim();
+        node.neighbours.add(neighbour);
+      }
+    }
   }
 
   private void checkCountryInfo(String input) throws InvalidCountryException {
@@ -90,6 +120,36 @@ public class MapEngine {
 
   }
 
+  private List<String> findShortestRoute(String start, String goal) {
+    Queue<List<String>> queue = new LinkedList<>();
+    Set<String> visited = new HashSet<>();
+
+    List<String> initialPath = new ArrayList<>();
+    initialPath.add(start);
+    queue.add(initialPath);
+    visited.add(start);
+
+    while (!queue.isEmpty()) {
+      List<String> path = queue.poll();
+      String current = path.get(path.size() - 1);
+
+      if (current.equals(goal)) {
+        return path;
+      }
+
+      for (String neighbor : graph.get(current).neighbours) {
+        if (!visited.contains(neighbor)) {
+          visited.add(neighbor);
+          List<String> newPath = new ArrayList<>(path);
+          newPath.add(neighbor);
+          queue.add(newPath);
+        }
+      }
+    }
+
+    return null;
+  }
+
   /** this method is invoked when the user run the command route. */
   public void showRoute() {
     while (true) {
@@ -130,5 +190,7 @@ public class MapEngine {
       MessageCli.NO_CROSSBORDER_TRAVEL.printMessage();
       return; // No cross-border travel is required
     }
+    List<String> route = findShortestRoute(source, destination);
+    MessageCli.ROUTE_INFO.printMessage(route.toString());
   }
 }
