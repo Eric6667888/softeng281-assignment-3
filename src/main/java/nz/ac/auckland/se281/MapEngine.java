@@ -193,5 +193,12 @@ public class MapEngine {
     }
     List<String> route = findShortestRoute(source, destination);
     MessageCli.ROUTE_INFO.printMessage(route.toString());
+
+    int totalFuel = 0;
+    for (int i = 1; i < route.size() - 1; i++) {
+      String currentCountry = route.get(i);
+      totalFuel += graph.get(currentCountry).fuelCost;
+    }
+    MessageCli.FUEL_INFO.printMessage(String.valueOf(totalFuel));
   }
 }
