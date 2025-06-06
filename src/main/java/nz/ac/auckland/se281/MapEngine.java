@@ -126,5 +126,9 @@ public class MapEngine {
         MessageCli.INVALID_COUNTRY.printMessage(e.getMessage());
       }
     }
+    if (source.equals(destination)) {
+      MessageCli.NO_CROSSBORDER_TRAVEL.printMessage();
+      return; // No cross-border travel is required
+    }
   }
 }
